@@ -4,14 +4,15 @@
       <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Dashboard</p>
       <h1 class="text-3xl font-semibold">今日の振り返りを、静かに積む。</h1>
       <p class="max-w-2xl text-sm leading-7 text-slate-600">
-        1 日 1 エントリーだけに絞ることで、迷わず続けられる設計にしています。
+        1日の中で気持ちが動いたタイミングごとに、何度でも録音を積み重ねられます。
       </p>
+      <%= link_to "過去の要約から自分を読む", insight_path, class: "inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" %>
     </div>
 
-    <% if @today_entry.present? %>
+    <% if @today_entries_count.to_i.positive? %>
       <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
-        <p class="text-sm text-slate-500">今日は記録済みです</p>
-        <%= link_to "今日のエントリーを見る", @today_entry, class: "mt-2 inline-flex text-sm font-medium text-slate-900 underline decoration-slate-300 underline-offset-4" %>
+        <p class="text-sm text-slate-500">今日は <%= @today_entries_count %> 件の録音があります</p>
+        <%= link_to "今日も追加で録音する", new_entry_path, class: "mt-2 inline-flex text-sm font-medium text-slate-900 underline decoration-slate-300 underline-offset-4" %>
       </div>
     <% else %>
       <%= link_to "今日を振り返る", new_entry_path, class: "inline-flex items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" %>

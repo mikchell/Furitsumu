@@ -35,13 +35,13 @@ RSpec.describe Entry, type: :model do
     expect(entry.errors[:audio_file]).to include("は音声ファイルを選択してください")
   end
 
-  it "prevents multiple entries on the same day for the same user" do
+  it "allows multiple entries on the same day for the same user" do
     user = create(:user)
     create(:entry, :with_audio, user:, recorded_on: Date.current)
 
     duplicate = build(:entry, :with_audio, user:, recorded_on: Date.current)
 
-    expect(duplicate).not_to be_valid
+    expect(duplicate).to be_valid
   end
 
   it "detects stale transcribing entries" do
