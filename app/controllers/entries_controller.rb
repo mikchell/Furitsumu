@@ -18,13 +18,19 @@ class EntriesController < ApplicationController
   end
 
   def retry
-    unless @entry.failed?
-      return redirect_to @entry, alert: "処理中または完了済みのエントリーは再試行できません。"
+    unless @entry.retryable_processing?
+      return redirect_to @entry, alert: "処理中または完了済みのエントリーは再開できません。"
     end
 
-    @entry.update!(status: :transcribing, error_message: nil)
-    TranscribeJob.perform_later(@entry.id)
-    redirect_to @entry, notice: "再処理を開始しました。"
+    if @entry.summarizing? && @entry.transcript.present?
+      @entry.update!(error_message: nil)
+      SummarizeJob.perform_later(@entry.id)
+      redirect_to @entry, notice: "要約処理を再開しました。"
+    else
+      @entry.update!(status: :transcribing, error_message: nil)
+      TranscribeJob.perform_later(@entry.id)
+      redirect_to @entry, notice: "文字起こし処理を再開しました。"
+    end
   end
 
   def create

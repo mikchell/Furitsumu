@@ -1,22 +1,23 @@
-class LlmApiClient
-  API_URL = "https://api.anthropic.com/v1/messages"
-  MODEL   = "claude-haiku-4-5-20251001"
+require "json"
+require "net/http"
+require "uri"
 
-  SUMMARY_PROMPT = <<~PROMPT
+class LlmApiClient
+  API_URL = "https://api.openai.com/v1/chat/completions"
+  MODEL   = "gpt-4.1-mini"
+  OPEN_TIMEOUT = 10
+  READ_TIMEOUT = 120
+
+  SUMMARY_SYSTEM_PROMPT = <<~PROMPT
     あなたはユーザーが毎日3分話す日記の要約者です。
-    以下の文字起こしテキストを、1行(40文字以内)で要約してください。
+    文字起こしテキストを、日本語で要約してください。
 
     条件:
     - 一人称(私は〜)で書く
     - その日の出来事や気持ちのエッセンスを抽出
     - 客観的な記述ではなく、ユーザーの内面が見える表現
     - 「〜した日」「〜と感じた日」のような着地が好ましい
-
-    例: 「同期との会話で自分の弱さを認められた日」
-       「進捗が出なくて焦りを感じた日」
-
-    文字起こしテキスト:
-    %{transcript}
+    - 余計な前置きや説明は入れず、要約文だけを返す
   PROMPT
 
   class Error < StandardError; end
@@ -24,26 +25,35 @@ class LlmApiClient
   class RateLimitError < Error; end
 
   def summarize(transcript)
-    prompt = SUMMARY_PROMPT % { transcript: transcript.strip }
-    response = post_message(prompt)
+    response = post_message(transcript.to_s.strip)
     parse_response!(response)
+  rescue IOError, SocketError, SystemCallError, Timeout::Error, EOFError => e
+    raise Error, "OpenAI summary request failed: #{e.message}"
   end
 
   private
 
-  def post_message(prompt)
+  def post_message(transcript)
     uri = URI(API_URL)
 
-    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+    Net::HTTP.start(
+      uri.hostname,
+      uri.port,
+      use_ssl: true,
+      open_timeout: OPEN_TIMEOUT,
+      read_timeout: READ_TIMEOUT
+    ) do |http|
       request = Net::HTTP::Post.new(uri)
-      request["x-api-key"]         = api_key
-      request["anthropic-version"]  = "2023-06-01"
-      request["content-type"]       = "application/json"
+      request["Authorization"] = "Bearer #{api_key}"
+      request["Content-Type"] = "application/json"
 
       request.body = {
         model: MODEL,
         max_tokens: 100,
-        messages: [{ role: "user", content: prompt }]
+        messages: [
+          { role: "system", content: SUMMARY_SYSTEM_PROMPT },
+          { role: "user", content: transcript }
+        ]
       }.to_json
 
       http.request(request)
@@ -54,17 +64,24 @@ class LlmApiClient
     case response.code.to_i
     when 200
       body = JSON.parse(response.body)
-      body.dig("content", 0, "text").to_s.strip
+      body.dig("choices", 0, "message", "content").to_s.strip
     when 401
-      raise AuthError, "Anthropic API key is invalid or missing"
+      raise AuthError, "OpenAI API key is invalid or missing"
     when 429
-      raise RateLimitError, "Anthropic rate limit exceeded"
+      raise RateLimitError, "OpenAI rate limit exceeded"
     else
-      raise Error, "LLM API error #{response.code}: #{response.body}"
+      raise Error, "LLM API error #{response.code}: #{error_body(response)}"
     end
   end
 
   def api_key
-    ENV.fetch("ANTHROPIC_API_KEY") { raise AuthError, "ANTHROPIC_API_KEY is not set" }
+    ENV.fetch("OPENAI_API_KEY") { raise AuthError, "OPENAI_API_KEY is not set" }
+  end
+
+  def error_body(response)
+    body = JSON.parse(response.body)
+    body.dig("error", "message").presence || response.body
+  rescue JSON::ParserError
+    response.body
   end
 end

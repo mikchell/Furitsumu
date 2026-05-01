@@ -1,7 +1,9 @@
 require "rails_helper"
 
 RSpec.describe "Entries", type: :request do
-  let(:user) { create(:user) }
+  include ActiveJob::TestHelper
+
+  let(:user) { create(:user, email: "request-#{SecureRandom.hex(4)}@example.com") }
 
   describe "GET /entries" do
     it "requires authentication" do
@@ -36,6 +38,32 @@ RSpec.describe "Entries", type: :request do
 
       expect(Entry.last.recorded_on).to eq(Date.current)
       expect(Entry.last).to be_transcribing
+    end
+  end
+
+  describe "POST /entries/:id/retry" do
+    it "re-enqueues transcription for a stale transcribing entry" do
+      sign_in user
+      entry = create(:entry, :with_audio, user:, status: :transcribing, transcript: nil, summary: nil)
+      entry.update_column(:updated_at, 5.minutes.ago)
+
+      expect {
+        post retry_entry_path(entry)
+      }.to have_enqueued_job(TranscribeJob).with(entry.id)
+
+      expect(response).to redirect_to(entry_path(entry))
+    end
+
+    it "re-enqueues summarization for a stale summarizing entry" do
+      sign_in user
+      entry = create(:entry, :with_audio, user:, status: :summarizing, transcript: "今日は進め方を整理できた", summary: nil)
+      entry.update_column(:updated_at, 5.minutes.ago)
+
+      expect {
+        post retry_entry_path(entry)
+      }.to have_enqueued_job(SummarizeJob).with(entry.id)
+
+      expect(response).to redirect_to(entry_path(entry))
     end
   end
 end

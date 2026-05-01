@@ -1,8 +1,10 @@
+require_relative "../services/whisper_api_client"
+
 class TranscribeJob < ApplicationJob
   queue_as :default
 
-  retry_on WhisperApiClient::RateLimitError, wait: :polynomially_longer, attempts: 3
-  retry_on WhisperApiClient::Error, wait: 5.seconds, attempts: 3
+  retry_on ::WhisperApiClient::RateLimitError, wait: :polynomially_longer, attempts: 3
+  retry_on ::WhisperApiClient::Error, wait: 5.seconds, attempts: 3
 
   discard_on ActiveRecord::RecordNotFound
 
@@ -20,8 +22,8 @@ class TranscribeJob < ApplicationJob
     entry.broadcast_details_update
 
     SummarizeJob.perform_later(entry.id)
-  rescue WhisperApiClient::AuthError, WhisperApiClient::Error => e
-    entry&.update!(status: :failed, error_message: e.message)
+  rescue ::WhisperApiClient::AuthError, ::WhisperApiClient::Error => e
+    persist_failure(entry, e.message)
     entry&.broadcast_details_update
     raise
   end
@@ -36,12 +38,17 @@ class TranscribeJob < ApplicationJob
       entry.audio_file.download { |chunk| tmpfile.write(chunk) }
       tmpfile.rewind
 
-      WhisperApiClient.new.transcribe(tmpfile, filename: blob.filename.to_s)
+      ::WhisperApiClient.new.transcribe(tmpfile, filename: blob.filename.to_s)
     end
   end
 
   def fail_entry!(entry, message)
-    entry.update!(status: :failed, error_message: message)
+    persist_failure(entry, message)
     entry.broadcast_details_update
+  end
+
+  def persist_failure(entry, message)
+    entry.assign_attributes(status: :failed, error_message: message)
+    entry.save!(validate: false)
   end
 end
