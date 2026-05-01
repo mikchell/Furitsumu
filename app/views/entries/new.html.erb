@@ -1,64 +1,100 @@
-<section class="grid gap-6 py-6 lg:grid-cols-[1.05fr_0.95fr]">
-  <div class="rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10">
-    <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Recorder</p>
-    <h1 class="mt-3 text-3xl font-semibold">3 分だけ、今日を話す。</h1>
-    <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-      書き切ろうとせず、今日の出来事や気持ちをそのまま声にしてください。
-      3 分で自動停止するので、話しすぎる心配はいりません。
-    </p>
+<section class="grid gap-6 py-6 lg:grid-cols-[1.04fr_0.96fr]">
+  <div class="hero-surface">
+    <div class="grid gap-8 px-8 py-8">
+      <div class="space-y-4">
+        <p class="eyebrow">Recorder</p>
+        <h1 class="section-title">3分だけ、今日を話す。</h1>
+        <p class="body-copy max-w-2xl">
+          書き切ろうとせず、今日の出来事や気持ちをそのまま声にしてください。
+          時間が来ると自動で止まり、そのまま保存して振り返りに変わります。
+        </p>
+      </div>
 
-    <div
-      class="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6"
+      <div
+      class="rounded-[1.9rem] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff,#f6f8fb)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]"
       data-controller="recorder"
       data-recorder-max-seconds-value="180"
     >
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-slate-500">Remaining</p>
-          <p class="mt-1 text-4xl font-semibold tabular-nums text-slate-950" data-recorder-target="timer">03:00</p>
-        </div>
-        <button
-          type="button"
-          class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold tracking-[0.18em] text-white uppercase transition hover:bg-slate-800"
-          data-recorder-target="recordButton"
-          data-action="recorder#toggle"
-        >
-          Rec
-        </button>
-      </div>
-
-      <p class="mt-6 text-sm leading-7 text-slate-600" data-recorder-target="status">
-        マイクへのアクセスを許可して、録音を始めてください。
-      </p>
-
-      <audio controls class="mt-5 hidden w-full" data-recorder-target="preview"></audio>
-
-      <%= form_with model: @entry, class: "mt-6 space-y-4" do |form| %>
-        <% if @entry.errors.any? %>
-          <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            <%= @entry.errors.full_messages.to_sentence %>
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div class="panel-muted bg-slate-950 text-white">
+            <p class="text-sm text-slate-400">Remaining</p>
+            <p class="mt-2 text-5xl font-semibold tabular-nums tracking-tight" data-recorder-target="timer">03:00</p>
+            <p class="mt-3 text-sm leading-7 text-slate-300" data-recorder-target="status">
+              マイクへのアクセスを許可して、録音を始めてください。
+            </p>
           </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between rounded-[1.6rem] border border-slate-200 bg-white px-5 py-4">
+              <div>
+                <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Action</p>
+                <p class="mt-2 text-lg font-medium text-slate-950">録音の開始と停止</p>
+              </div>
+              <button
+                type="button"
+                class="inline-flex h-24 w-24 items-center justify-center rounded-full bg-amber-300 text-sm font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_18px_45px_rgba(251,191,36,0.28)] transition hover:scale-[1.02] hover:bg-amber-200"
+                data-recorder-target="recordButton"
+                data-action="recorder#toggle"
+              >
+                Rec
+              </button>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="rounded-[1.4rem] border border-slate-200 bg-white px-4 py-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Tip</p>
+                <p class="mt-2 text-sm leading-6 text-slate-700">出来事よりも、その時どう感じたかを先に話すと要約が自然になります。</p>
+              </div>
+              <div class="rounded-[1.4rem] border border-slate-200 bg-white px-4 py-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Limit</p>
+                <p class="mt-2 text-sm leading-6 text-slate-700">3分で自動停止するので、気軽に途中まででも残せます。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <audio controls class="audio-preview mt-5 hidden" data-recorder-target="preview"></audio>
+
+        <%= form_with model: @entry, class: "mt-6 space-y-4" do |form| %>
+          <% if @entry.errors.any? %>
+            <div class="rounded-[1.4rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <%= @entry.errors.full_messages.to_sentence %>
+            </div>
+          <% end %>
+
+          <div class="rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Audio file</p>
+            <%= form.file_field :audio_file, accept: "audio/*", class: "mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white", data: { recorder_target: "fileInput", action: "change->recorder#fileSelected" } %>
+          </div>
+
+          <%= form.hidden_field :duration_seconds, value: 0, data: { recorder_target: "durationInput" } %>
+
+          <%= form.submit "この録音を保存する", class: "primary-button w-full disabled:cursor-not-allowed disabled:translate-y-0 disabled:bg-slate-300", disabled: true, data: { recorder_target: "submitButton" } %>
         <% end %>
-
-        <%= form.file_field :audio_file, accept: "audio/*", class: "block w-full text-sm text-slate-600 file:mr-4 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white", data: { recorder_target: "fileInput", action: "change->recorder#fileSelected" } %>
-        <%= form.hidden_field :duration_seconds, value: 0, data: { recorder_target: "durationInput" } %>
-
-        <%= form.submit "この録音を保存する", class: "inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300", disabled: true, data: { recorder_target: "submitButton" } %>
-      <% end %>
+      </div>
     </div>
   </div>
 
-  <aside class="rounded-[2rem] border border-white/10 bg-white/8 p-8 text-slate-100 backdrop-blur">
-    <p class="text-xs tracking-[0.24em] text-slate-400 uppercase">Prompt</p>
+  <aside class="hero-surface-dark p-8 text-slate-100">
+    <p class="eyebrow text-slate-400">Prompt</p>
     <h2 class="mt-3 text-2xl font-semibold text-white">話すヒント</h2>
-    <ul class="mt-5 space-y-4 text-sm leading-7 text-slate-300">
-      <li>今日は何が一番心に残ったか</li>
-      <li>うれしかったこと、引っかかったことは何か</li>
-      <li>明日の自分に何を持ち越したいか</li>
-    </ul>
+    <div class="mt-6 space-y-4">
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.07] px-5 py-5">
+        <p class="text-sm font-medium text-white">今日は何が一番心に残ったか</p>
+        <p class="mt-2 text-sm leading-7 text-slate-300">一つに絞らなくて大丈夫です。強く残った順に並べるだけで十分です。</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.07] px-5 py-5">
+        <p class="text-sm font-medium text-white">うれしかったこと、引っかかったことは何か</p>
+        <p class="mt-2 text-sm leading-7 text-slate-300">出来事より、そこで自分がどう反応したかを入れると振り返りやすくなります。</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-white/10 bg-white/[0.07] px-5 py-5">
+        <p class="text-sm font-medium text-white">明日の自分に何を持ち越したいか</p>
+        <p class="mt-2 text-sm leading-7 text-slate-300">課題でも希望でも構いません。次の日との接続ができます。</p>
+      </div>
+    </div>
 
-    <div class="mt-8 rounded-[1.5rem] border border-white/10 bg-slate-950/40 p-5">
-      <p class="text-sm text-slate-300">
+    <div class="mt-8 rounded-[1.6rem] border border-amber-200/15 bg-amber-300/[0.10] p-5">
+      <p class="text-sm leading-7 text-slate-200">
         保存後は OpenAI で文字起こしを行い、その内容をもとに要約まで順番に処理します。
       </p>
     </div>
