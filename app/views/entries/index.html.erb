@@ -1,46 +1,74 @@
 <section class="space-y-8 py-6">
-  <div class="flex flex-col gap-4 rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10 lg:flex-row lg:items-end lg:justify-between">
-    <div class="space-y-3">
-      <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Dashboard</p>
-      <h1 class="text-3xl font-semibold">今日の振り返りを、静かに積む。</h1>
-      <p class="max-w-2xl text-sm leading-7 text-slate-600">
-        1日の中で気持ちが動いたタイミングごとに、何度でも録音を積み重ねられます。
-      </p>
-      <%= link_to "過去の要約から自分を読む", insight_path, class: "inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" %>
-    </div>
-
-    <% if @today_entries_count.to_i.positive? %>
-      <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
-        <p class="text-sm text-slate-500">今日は <%= @today_entries_count %> 件の録音があります</p>
-        <%= link_to "今日も追加で録音する", new_entry_path, class: "mt-2 inline-flex text-sm font-medium text-slate-900 underline decoration-slate-300 underline-offset-4" %>
+  <div class="hero-surface">
+    <div class="grid gap-6 px-8 py-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+      <div class="space-y-4">
+        <p class="eyebrow">Dashboard</p>
+        <h1 class="section-title">今日の振り返りを、静かに積む。</h1>
+        <p class="body-copy max-w-2xl">
+          1日の中で気持ちが動いた瞬間ごとに、何度でも短く残せます。あとから見返したときに、
+          その日の揺れと流れが自然につながる一覧に整えました。
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <%= link_to "新しく録音する", new_entry_path, class: "primary-button" %>
+          <%= link_to "過去の要約から自分を読む", insight_path, class: "secondary-button" %>
+        </div>
       </div>
-    <% else %>
-      <%= link_to "今日を振り返る", new_entry_path, class: "inline-flex items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" %>
-    <% end %>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div class="metric-card bg-slate-950 text-white">
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Today</p>
+          <p class="mt-2 text-4xl font-semibold"><%= @today_entries_count %></p>
+          <p class="mt-2 text-sm text-slate-300">今日の録音本数</p>
+        </div>
+        <div class="metric-card">
+          <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Flow</p>
+          <p class="mt-2 text-lg font-medium text-slate-950">
+            <%= @today_entries_count.to_i.positive? ? "今日はもう#{@today_entries_count}回、言葉を残しています。" : "まだ何も残っていません。" %>
+          </p>
+          <p class="mt-2 text-sm leading-6 text-slate-500">
+            <%= @today_entries_count.to_i.positive? ? "出来事ごとに分けて残すと、あとで読み返しやすくなります。" : "3分だけ録って、今日の輪郭をここから作りましょう。" %>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="space-y-4">
     <% if @entries.any? %>
       <% @entries.each do |entry| %>
-        <%= link_to entry_path(entry), class: "block rounded-[1.75rem] border border-slate-200 bg-white p-6 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-950/5" do %>
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="space-y-2">
-              <p class="text-sm text-slate-500"><%= l(entry.recorded_on, format: :long) %></p>
-              <p class="text-lg font-medium text-slate-900"><%= entry.summary.presence || "まだ要約はありません" %></p>
-              <p class="text-sm leading-7 text-slate-600">
-                <%= truncate(entry.transcript.presence || "録音した音声と振り返りの中身がここに並びます。", length: 120) %>
+        <%= link_to entry_path(entry), class: "journal-card" do %>
+          <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-3">
+                <p class="text-sm text-slate-500"><%= l(entry.recorded_on, format: :long) %></p>
+                <span class="<%= entry_status_badge_classes(entry) %>"><%= entry_status_label(entry) %></span>
+              </div>
+              <p class="text-xl font-semibold text-slate-950"><%= entry.summary.presence || "まだ要約はありません" %></p>
+              <p class="body-copy max-w-3xl">
+                <%= entry.summary.present? ? "要約を中心に振り返りを見返せます。詳細では録音も再生できます。" : "処理が終わると、この録音の要点だけがここに表示されます。" %>
               </p>
             </div>
 
-            <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium <%= entry.completed? ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600" %>">
-              <%= entry.status.humanize %>
-            </span>
+            <div class="grid min-w-[14rem] gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div class="rounded-[1.3rem] bg-slate-50 px-4 py-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Recorded</p>
+                <p class="mt-2 text-sm font-medium text-slate-900"><%= entry_duration_label(entry).presence || "長さ未記録" %></p>
+              </div>
+              <div class="rounded-[1.3rem] bg-amber-50 px-4 py-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-amber-700">Focus</p>
+                <p class="mt-2 text-sm leading-6 text-slate-700"><%= entry.summary.present? ? "要点が読める状態です。" : "処理が終わると一行に整います。" %></p>
+              </div>
+            </div>
           </div>
         <% end %>
       <% end %>
     <% else %>
-      <div class="rounded-[1.75rem] border border-dashed border-slate-300 bg-white/80 p-10 text-center text-slate-600">
-        まだ振り返りはありません。最初の 3 分をここから始めましょう。
+      <div class="surface-card text-center">
+        <h2 class="text-2xl font-semibold text-slate-950">まだ振り返りはありません</h2>
+        <p class="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-600">
+          最初の3分を残すと、この一覧が少しずつ「自分のログ」らしい表情に変わっていきます。
+        </p>
+        <%= link_to "最初の録音を始める", new_entry_path, class: "primary-button mt-6" %>
       </div>
     <% end %>
   </div>

@@ -1,11 +1,11 @@
 <div id="entry_<%= entry.id %>_details" class="mt-8 space-y-6">
   <% if entry.completed? %>
-    <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+    <div class="flex items-center gap-3 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4">
       <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">✓</div>
       <p class="text-sm font-medium text-emerald-700">要約の生成が完了しました。</p>
     </div>
   <% elsif entry.failed? %>
-    <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4">
+    <div class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4">
       <p class="text-sm font-medium text-rose-700">処理に失敗しました</p>
       <% if entry.error_message.present? %>
         <p class="mt-1 text-xs text-rose-500"><%= entry.error_message %></p>
@@ -14,7 +14,7 @@
             class: "mt-3 inline-flex rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-700" %>
     </div>
   <% elsif entry.stale_processing? %>
-    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+    <div class="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4">
       <p class="text-sm font-medium text-amber-800">
         <%= entry.transcribing? ? "文字起こしが止まっている可能性があります" : "要約処理が止まっている可能性があります" %>
       </p>
@@ -25,9 +25,9 @@
             retry_entry_path(entry),
             method: :post,
             class: "mt-3 inline-flex rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600") %>
-    </div>
+  </div>
   <% elsif !entry.completed? %>
-    <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+    <div class="flex items-center gap-3 rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-4">
       <div class="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
       <p class="text-sm text-slate-600">
         <%= entry.transcribing? ? "文字起こし中です..." : "要約を生成中です..." %>
@@ -35,29 +35,49 @@
     </div>
   <% end %>
 
-  <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-    <section class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
-      <h2 class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Audio</h2>
+  <div class="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
+    <section class="surface-card-soft">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="eyebrow">Audio</h2>
+          <p class="mt-2 text-xl font-semibold text-slate-950">録音データ</p>
+        </div>
+        <% if entry_duration_label(entry).present? %>
+          <span class="status-pill status-pill-muted"><%= entry_duration_label(entry) %></span>
+        <% end %>
+      </div>
       <% if entry.audio_file.attached? %>
-        <audio controls class="mt-4 w-full">
+        <audio controls class="audio-preview mt-5">
           <source src="<%= rails_blob_path(entry.audio_file, disposition: "inline") %>">
         </audio>
-        <% if entry.duration_seconds.present? %>
-          <p class="mt-3 text-sm text-slate-500">録音時間: <%= entry.duration_seconds %> 秒</p>
-        <% end %>
+        <div class="mt-5 rounded-[1.3rem] bg-white px-4 py-4">
+          <p class="text-sm leading-7 text-slate-600">
+            録音を聞き返すと、その日の要約とのズレや、言葉にしきれていなかった感情も見つけやすくなります。
+          </p>
+        </div>
       <% else %>
         <p class="mt-4 text-sm leading-7 text-slate-500">音声ファイルはまだ添付されていません。</p>
       <% end %>
     </section>
 
-    <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5">
-      <h2 class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Transcript</h2>
-      <% if entry.transcript.present? %>
-        <p class="mt-4 whitespace-pre-wrap text-sm leading-8 text-slate-700"><%= entry.transcript %></p>
+    <section class="surface-card">
+      <div>
+        <h2 class="eyebrow">Summary</h2>
+        <p class="mt-2 text-xl font-semibold text-slate-950">振り返りの要点</p>
+      </div>
+      <% if entry.summary.present? %>
+        <div class="mt-5 rounded-[1.5rem] bg-amber-50 px-5 py-5">
+          <p class="text-lg font-medium leading-8 text-slate-900"><%= entry.summary %></p>
+        </div>
+        <div class="mt-5 rounded-[1.3rem] bg-slate-50 px-4 py-4">
+          <p class="text-sm leading-7 text-slate-600">
+            録音内容の全文は表示せず、あとから見返しやすい要約だけを残しています。
+          </p>
+        </div>
       <% else %>
-        <div class="mt-4 flex items-start gap-3 text-sm text-slate-700">
+        <div class="mt-5 flex items-start gap-3 rounded-[1.5rem] bg-slate-50 px-5 py-5 text-sm text-slate-700">
           <div class="mt-1 h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
-          <p class="whitespace-pre-wrap leading-8">文字起こし処理中です。しばらくお待ちください。</p>
+          <p class="whitespace-pre-wrap leading-8">要約を生成中です。しばらくお待ちください。</p>
         </div>
       <% end %>
     </section>

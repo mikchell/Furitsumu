@@ -11,33 +11,36 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-slate-950 text-slate-100">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_32%),linear-gradient(180deg,_#0f172a_0%,_#111827_42%,_#f8fafc_42%,_#f8fafc_100%)]">
-      <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <%= link_to "Furitsumu", root_path, class: "text-lg font-semibold tracking-[0.22em] text-slate-50 uppercase" %>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <%= link_to root_path, class: "brand-mark" do %>
+          <span class="brand-mark-dot"></span>
+          <span>Furitsumu</span>
+        <% end %>
 
-        <nav class="flex items-center gap-3 text-sm text-slate-300">
+        <nav class="flex flex-wrap items-center justify-end gap-2 text-sm text-slate-300">
           <% if user_signed_in? %>
-            <span class="hidden sm:inline"><%= current_user.name %></span>
-            <%= link_to "一覧", entries_path, class: "rounded-full border border-slate-700 px-4 py-2 hover:border-slate-500" %>
-            <%= link_to "Insights", insight_path, class: "rounded-full border border-slate-700 px-4 py-2 hover:border-slate-500" %>
-            <%= link_to "録音する", new_entry_path, class: "rounded-full bg-slate-100 px-4 py-2 font-medium text-slate-950 hover:bg-white" %>
-            <%= button_to "ログアウト", destroy_user_session_path, method: :delete, class: "rounded-full border border-slate-700 px-4 py-2 hover:border-slate-500" %>
+            <span class="hidden text-sm text-slate-300 sm:inline"><%= current_user.name %></span>
+            <%= link_to "一覧", entries_path, class: "nav-link" %>
+            <%= link_to "Insights", insight_path, class: "nav-link" %>
+            <%= link_to "録音する", new_entry_path, class: "nav-link-primary" %>
+            <%= button_to "ログアウト", destroy_user_session_path, method: :delete, class: "nav-link" %>
           <% else %>
-            <%= link_to "ログイン", new_user_session_path, class: "rounded-full border border-slate-700 px-4 py-2 hover:border-slate-500" %>
-            <%= link_to "はじめる", new_user_registration_path, class: "rounded-full bg-slate-100 px-4 py-2 font-medium text-slate-950 hover:bg-white" %>
+            <%= link_to "ログイン", new_user_session_path, class: "nav-link" %>
+            <%= link_to "はじめる", new_user_registration_path, class: "nav-link-primary" %>
           <% end %>
         </nav>
       </header>
 
-      <main class="mx-auto max-w-6xl px-6 pb-16">
+      <main class="page-wrap">
         <% if notice.present? || alert.present? %>
           <div class="mb-6 space-y-3">
             <% if notice.present? %>
-              <div class="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100"><%= notice %></div>
+              <div class="notice-card notice-card-success"><%= notice %></div>
             <% end %>
             <% if alert.present? %>
-              <div class="rounded-2xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100"><%= alert %></div>
+              <div class="notice-card notice-card-warning"><%= alert %></div>
             <% end %>
           </div>
         <% end %>
