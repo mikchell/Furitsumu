@@ -1,5 +1,10 @@
 <div id="entry_<%= entry.id %>_details" class="mt-8 space-y-6">
-  <% if entry.failed? %>
+  <% if entry.completed? %>
+    <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+      <div class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">✓</div>
+      <p class="text-sm font-medium text-emerald-700">要約の生成が完了しました。</p>
+    </div>
+  <% elsif entry.failed? %>
     <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4">
       <p class="text-sm font-medium text-rose-700">処理に失敗しました</p>
       <% if entry.error_message.present? %>
@@ -47,9 +52,14 @@
 
     <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5">
       <h2 class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Transcript</h2>
-      <p class="mt-4 whitespace-pre-wrap text-sm leading-8 text-slate-700">
-        <%= entry.transcript.presence || "文字起こし処理中です。しばらくお待ちください。" %>
-      </p>
+      <% if entry.transcript.present? %>
+        <p class="mt-4 whitespace-pre-wrap text-sm leading-8 text-slate-700"><%= entry.transcript %></p>
+      <% else %>
+        <div class="mt-4 flex items-start gap-3 text-sm text-slate-700">
+          <div class="mt-1 h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
+          <p class="whitespace-pre-wrap leading-8">文字起こし処理中です。しばらくお待ちください。</p>
+        </div>
+      <% end %>
     </section>
   </div>
 </div>

@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Entries", type: :request do
   include ActiveJob::TestHelper
 
-  let(:user) { create(:user) }
+  let(:user) { create(:user, email: "request-#{SecureRandom.hex(4)}@example.com") }
 
   describe "GET /entries" do
     it "requires authentication" do
