@@ -1,5 +1,4 @@
-# 8. Branch Strategy（ブランチ戦略）
-
+# AIエージェントのブランチ運用ルール
 AIエージェントは **main / master ブランチへ直接コミットしてはいけない。**
 
 作業開始時に必ず新しいブランチを作成する。
@@ -17,7 +16,7 @@ git checkout -b <branch-name>
 
 3. 実装を行う
 
-4. Conventional Commit 形式でコミット
+4. Conventional Commit 形式でコミット（メッセージは日本語で記述する）
 
 5. main ブランチへ Pull Request を作成する
 
@@ -74,5 +73,3 @@ Pull Request 作成
 review  
 ↓  
 merge
-
----
