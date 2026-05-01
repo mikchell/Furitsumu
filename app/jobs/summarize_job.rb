@@ -23,11 +23,6 @@ class SummarizeJob < ApplicationJob
   private
 
   def broadcast_update(entry)
-    entry.broadcast_replace_to(
-      entry,
-      target: "entry_#{entry.id}_details",
-      partial: "entries/details",
-      locals: { entry: }
-    )
+    entry.broadcast_details_update
   end
 end

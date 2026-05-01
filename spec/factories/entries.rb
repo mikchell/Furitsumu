@@ -7,5 +7,15 @@ FactoryBot.define do
     summary { "集中して作業の流れを作れた日" }
     status { :completed }
     error_message { nil }
+
+    trait :with_audio do
+      after(:build) do |entry|
+        entry.audio_file.attach(
+          io: StringIO.new("fake audio"),
+          filename: "sample.webm",
+          content_type: "audio/webm"
+        )
+      end
+    end
   end
 end

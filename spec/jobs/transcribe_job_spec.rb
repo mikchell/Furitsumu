@@ -3,15 +3,7 @@ require "rails_helper"
 RSpec.describe TranscribeJob, type: :job do
   include ActiveJob::TestHelper
 
-  let(:entry) { create(:entry, status: :transcribing, transcript: nil, summary: nil) }
-
-  before do
-    entry.audio_file.attach(
-      io: StringIO.new("fake audio"),
-      filename: "sample.webm",
-      content_type: "audio/webm"
-    )
-  end
+  let(:entry) { create(:entry, :with_audio, status: :transcribing, transcript: nil, summary: nil) }
 
   it "stores the transcript and enqueues the summarize job" do
     allow_any_instance_of(WhisperApiClient).to receive(:transcribe).and_return("今日は進め方を整理できた")
