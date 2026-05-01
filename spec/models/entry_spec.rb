@@ -43,4 +43,21 @@ RSpec.describe Entry, type: :model do
 
     expect(duplicate).not_to be_valid
   end
+
+  it "detects stale transcribing entries" do
+    user = create(:user, email: "stale-#{SecureRandom.hex(4)}@example.com")
+    entry = create(:entry, :with_audio, user:, status: :transcribing, transcript: nil, summary: nil)
+    entry.update_column(:updated_at, 5.minutes.ago)
+
+    expect(entry).to be_stale_processing
+    expect(entry).to be_retryable_processing
+  end
+
+  it "does not mark fresh processing entries as stale" do
+    user = create(:user, email: "fresh-#{SecureRandom.hex(4)}@example.com")
+    entry = create(:entry, :with_audio, user:, status: :transcribing, transcript: nil, summary: nil)
+    entry.update_column(:updated_at, 30.seconds.ago)
+
+    expect(entry).not_to be_stale_processing
+  end
 end

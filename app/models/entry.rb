@@ -1,6 +1,7 @@
 class Entry < ApplicationRecord
   include Turbo::Broadcastable
 
+  STALE_PROCESSING_AFTER = 2.minutes
   belongs_to :user
   has_one_attached :audio_file
 
@@ -35,6 +36,17 @@ class Entry < ApplicationRecord
       partial: "entries/details",
       locals: { entry: self }
     )
+  end
+
+  def stale_processing?
+    return false unless transcribing? || summarizing?
+    return false unless updated_at.present?
+
+    updated_at < STALE_PROCESSING_AFTER.ago
+  end
+
+  def retryable_processing?
+    failed? || stale_processing?
   end
 
   private
