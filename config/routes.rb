@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     root "pages#landing"
   end
 
+  resource :insight, only: :show
+
   resources :entries, only: %i[index show new create] do
     member do
       post :retry

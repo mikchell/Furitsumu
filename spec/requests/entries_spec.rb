@@ -39,6 +39,30 @@ RSpec.describe "Entries", type: :request do
       expect(Entry.last.recorded_on).to eq(Date.current)
       expect(Entry.last).to be_transcribing
     end
+
+    it "allows creating multiple entries on the same day" do
+      sign_in user
+      first_audio = fixture_file_upload(Rails.root.join("spec/fixtures/files/sample_audio.webm"), "audio/webm")
+      second_audio = fixture_file_upload(Rails.root.join("spec/fixtures/files/sample_audio.webm"), "audio/webm")
+
+      post entries_path, params: {
+        entry: {
+          audio_file: first_audio,
+          duration_seconds: 90
+        }
+      }
+
+      expect {
+        post entries_path, params: {
+          entry: {
+            audio_file: second_audio,
+            duration_seconds: 45
+          }
+        }
+      }.to change(Entry, :count).by(1)
+
+      expect(user.entries.where(recorded_on: Date.current).count).to eq(2)
+    end
   end
 
   describe "POST /entries/:id/retry" do

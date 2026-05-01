@@ -1,0 +1,112 @@
+<section class="space-y-8 py-6">
+  <div class="overflow-hidden rounded-[2rem] bg-white text-slate-900 shadow-xl shadow-slate-950/10">
+    <div class="bg-[linear-gradient(135deg,_rgba(15,23,42,0.96),_rgba(30,41,59,0.92)_55%,_rgba(71,85,105,0.82))] px-8 py-10 text-white">
+      <p class="text-xs tracking-[0.24em] text-slate-300 uppercase">Insights</p>
+      <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-3xl space-y-3">
+          <h1 class="text-3xl font-semibold">あなたの思考の輪郭</h1>
+          <p class="text-sm leading-7 text-slate-200">
+            過去の要約だけを重ねて見て、その人が何に反応し、どんな言葉で自分を理解しようとしているかを静かにたどります。
+          </p>
+        </div>
+        <%= link_to "新しく録音する", new_entry_path, class: "inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100" %>
+      </div>
+    </div>
+
+    <div class="grid gap-4 border-t border-slate-200 bg-slate-50 px-8 py-6 sm:grid-cols-3">
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4">
+        <p class="text-xs tracking-[0.18em] text-slate-500 uppercase">Reflections</p>
+        <p class="mt-2 text-3xl font-semibold text-slate-950"><%= @insights.total_entries %></p>
+        <p class="mt-1 text-sm text-slate-500">要約が残っている振り返り</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4">
+        <p class="text-xs tracking-[0.18em] text-slate-500 uppercase">Active Days</p>
+        <p class="mt-2 text-3xl font-semibold text-slate-950"><%= @insights.active_days %></p>
+        <p class="mt-1 text-sm text-slate-500">言葉を残した日数</p>
+      </div>
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4">
+        <p class="text-xs tracking-[0.18em] text-slate-500 uppercase">Latest</p>
+        <p class="mt-2 text-2xl font-semibold text-slate-950">
+          <%= @insights.latest_recorded_on.present? ? l(@insights.latest_recorded_on, format: :long) : "まだありません" %>
+        </p>
+        <p class="mt-1 text-sm text-slate-500">最後に自分を見つめた日</p>
+      </div>
+    </div>
+  </div>
+
+  <% if @insights.present? %>
+    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <section class="rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10">
+        <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Themes</p>
+        <h2 class="mt-3 text-2xl font-semibold">繰り返し現れる関心ごと</h2>
+        <div class="mt-6 space-y-4">
+          <% @insights.top_themes.each do |theme| %>
+            <div class="rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-4">
+              <div class="flex items-center justify-between gap-4">
+                <h3 class="text-lg font-medium text-slate-950"><%= theme.title %></h3>
+                <% if theme.score.to_i.positive? %>
+                  <span class="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white"><%= theme.score %> hits</span>
+                <% end %>
+              </div>
+              <p class="mt-2 text-sm leading-7 text-slate-600"><%= theme.description %></p>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10">
+        <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Style</p>
+        <h2 class="mt-3 text-2xl font-semibold">見えてくる思考の型</h2>
+        <div class="mt-6 space-y-4">
+          <% @insights.style_signals.each do |signal| %>
+            <div class="rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 shadow-lg shadow-slate-950/5">
+              <div class="flex items-center justify-between gap-4">
+                <h3 class="text-lg font-medium text-slate-950"><%= signal.title %></h3>
+                <% if signal.score.to_i.positive? %>
+                  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800"><%= signal.score %></span>
+                <% end %>
+              </div>
+              <p class="mt-2 text-sm leading-7 text-slate-600"><%= signal.description %></p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-5">
+          <p class="text-xs tracking-[0.18em] text-slate-500 uppercase">Keywords</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <% @insights.top_keywords.each do |keyword| %>
+              <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700"><%= keyword %></span>
+            <% end %>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">Timeline</p>
+          <h2 class="mt-3 text-2xl font-semibold">その人らしさが見える断片</h2>
+        </div>
+        <p class="text-sm text-slate-500">最近の要約を新しい順に並べています</p>
+      </div>
+
+      <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <% @insights.recent_summaries.each do |entry| %>
+          <article class="rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-5">
+            <p class="text-sm text-slate-500"><%= l(entry.recorded_on, format: :long) %></p>
+            <p class="mt-3 text-lg font-medium leading-8 text-slate-950"><%= entry.summary %></p>
+          </article>
+        <% end %>
+      </div>
+    </section>
+  <% else %>
+    <section class="rounded-[2rem] border border-dashed border-slate-300 bg-white/90 p-10 text-center text-slate-600 shadow-xl shadow-slate-950/10">
+      <h2 class="text-2xl font-semibold text-slate-900">まだ人物像は集計できません</h2>
+      <p class="mx-auto mt-3 max-w-2xl text-sm leading-7">
+        要約がいくつか溜まってくると、よく考えていることや思考の癖が少しずつ見えてきます。まずは何本か録音してみましょう。
+      </p>
+      <%= link_to "最初の録音を追加する", new_entry_path, class: "mt-6 inline-flex items-center justify-center rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" %>
+    </section>
+  <% end %>
+</section>

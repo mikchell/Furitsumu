@@ -4,16 +4,13 @@ class EntriesController < ApplicationController
 
   def index
     @entries = current_user.entries.recent_first
-    @today_entry = current_user.entries.find_by(recorded_on: today_for(current_user))
+    @today_entries_count = current_user.entries.where(recorded_on: today_for(current_user)).count
   end
 
   def show
   end
 
   def new
-    existing_entry = current_user.entries.find_by(recorded_on: today_for(current_user))
-    return redirect_to existing_entry, alert: "今日はすでに振り返りを保存しています。" if existing_entry
-
     @entry = current_user.entries.build
   end
 

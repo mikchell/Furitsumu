@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_01_062330) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_01_083000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -52,7 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_01_062330) do
     t.text "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id", "recorded_on"], name: "index_entries_on_user_id_and_recorded_on", unique: true
+    t.index ["user_id", "recorded_on"], name: "index_entries_on_user_id_and_recorded_on"
     t.index ["user_id"], name: "index_entries_on_user_id"
   end
 

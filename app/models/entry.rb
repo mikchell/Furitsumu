@@ -23,7 +23,7 @@ class Entry < ApplicationRecord
 
   scope :recent_first, -> { order(recorded_on: :desc, created_at: :desc) }
 
-  validates :recorded_on, presence: true, uniqueness: { scope: :user_id }
+  validates :recorded_on, presence: true
   validates :duration_seconds, numericality: { greater_than: 0, less_than_or_equal_to: 180 }, allow_nil: true
   validates :status, presence: true
   validate :audio_file_presence
