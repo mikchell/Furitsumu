@@ -1,0 +1,12 @@
+<% if resource.errors.any? %>
+  <div id="error_explanation" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" data-turbo-temporary>
+    <h2 class="font-medium">
+      入力内容を確認してください
+    </h2>
+    <ul class="mt-2 list-disc pl-5">
+      <% resource.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

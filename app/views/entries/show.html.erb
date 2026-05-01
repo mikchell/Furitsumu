@@ -1,0 +1,36 @@
+<section class="space-y-6 py-6">
+  <div class="rounded-[2rem] bg-white p-8 text-slate-900 shadow-xl shadow-slate-950/10">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <p class="text-sm text-slate-500"><%= l(@entry.recorded_on, format: :long) %></p>
+        <h1 class="mt-2 text-3xl font-semibold"><%= @entry.summary.presence || "今日の振り返り" %></h1>
+      </div>
+      <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+        <%= @entry.status.humanize %>
+      </span>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <section class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+        <h2 class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Audio</h2>
+        <% if @entry.audio_file.attached? %>
+          <audio controls class="mt-4 w-full">
+            <source src="<%= rails_blob_path(@entry.audio_file, disposition: "attachment") %>">
+          </audio>
+          <% if @entry.duration_seconds.present? %>
+            <p class="mt-3 text-sm text-slate-500">録音時間: <%= @entry.duration_seconds %> 秒</p>
+          <% end %>
+        <% else %>
+          <p class="mt-4 text-sm leading-7 text-slate-500">音声ファイルはまだ添付されていません。</p>
+        <% end %>
+      </section>
+
+      <section class="rounded-[1.5rem] border border-slate-200 bg-white p-5">
+        <h2 class="text-sm font-semibold tracking-[0.18em] text-slate-500 uppercase">Transcript</h2>
+        <p class="mt-4 whitespace-pre-wrap text-sm leading-8 text-slate-700">
+          <%= @entry.transcript.presence || "ここに文字起こし全文が表示されます。" %>
+        </p>
+      </section>
+    </div>
+  </div>
+</section>
