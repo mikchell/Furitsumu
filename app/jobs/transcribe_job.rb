@@ -21,7 +21,7 @@ class TranscribeJob < ApplicationJob
 
     SummarizeJob.perform_later(entry.id)
   rescue WhisperApiClient::AuthError, WhisperApiClient::Error => e
-    entry&.update!(status: :failed, error_message: e.message)
+    persist_failure(entry, e.message)
     entry&.broadcast_details_update
     raise
   end
@@ -41,7 +41,12 @@ class TranscribeJob < ApplicationJob
   end
 
   def fail_entry!(entry, message)
-    entry.update!(status: :failed, error_message: message)
+    persist_failure(entry, message)
     entry.broadcast_details_update
+  end
+
+  def persist_failure(entry, message)
+    entry.assign_attributes(status: :failed, error_message: message)
+    entry.save!(validate: false)
   end
 end

@@ -8,6 +8,19 @@
       <%= button_to "再試行する", retry_entry_path(entry), method: :post,
             class: "mt-3 inline-flex rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-700" %>
     </div>
+  <% elsif entry.stale_processing? %>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+      <p class="text-sm font-medium text-amber-800">
+        <%= entry.transcribing? ? "文字起こしが止まっている可能性があります" : "要約処理が止まっている可能性があります" %>
+      </p>
+      <p class="mt-1 text-xs text-amber-600">
+        しばらく更新されていないため、処理を再開できます。
+      </p>
+      <%= button_to(entry.transcribing? ? "文字起こしを再開する" : "要約を再開する",
+            retry_entry_path(entry),
+            method: :post,
+            class: "mt-3 inline-flex rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600") %>
+    </div>
   <% elsif !entry.completed? %>
     <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
       <div class="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></div>
