@@ -1,6 +1,6 @@
 class EntriesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_entry, only: :show
+  before_action :set_entry, only: %i[show retry]
 
   def index
     @entries = current_user.entries.recent_first
@@ -17,13 +17,24 @@ class EntriesController < ApplicationController
     @entry = current_user.entries.build
   end
 
+  def retry
+    unless @entry.failed?
+      return redirect_to @entry, alert: "処理中または完了済みのエントリーは再試行できません。"
+    end
+
+    @entry.update!(status: :transcribing, error_message: nil)
+    TranscribeJob.perform_later(@entry.id)
+    redirect_to @entry, notice: "再処理を開始しました。"
+  end
+
   def create
     @entry = current_user.entries.build(entry_params)
     @entry.recorded_on = today_for(current_user)
     @entry.status = :transcribing
 
     if @entry.save
-      redirect_to @entry, notice: "音声を保存しました。文字起こしの接続は次のステップで追加します。"
+      TranscribeJob.perform_later(@entry.id)
+      redirect_to @entry, notice: "音声を保存しました。文字起こしと要約を処理しています。"
     else
       render :new, status: :unprocessable_entity
     end

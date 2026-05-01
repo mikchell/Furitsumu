@@ -1,4 +1,6 @@
 class Entry < ApplicationRecord
+  include Turbo::Broadcastable
+
   belongs_to :user
   has_one_attached :audio_file
 
